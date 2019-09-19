@@ -72,10 +72,6 @@ class ExportMenu extends GridView
      */
     const FORMAT_TEXT = 'Txt';
     /**
-     * @var string PDF (Portable Document Format) export format
-     */
-    const FORMAT_PDF = 'Pdf';
-    /**
      * @var string Microsoft Excel 95+ export format
      */
     const FORMAT_EXCEL = 'Xls';
@@ -297,7 +293,7 @@ class ExportMenu extends GridView
 
     /**
      * @var array the export configuration. The array keys must be the one of the `format` constants (CSV, HTML, TEXT,
-     * EXCEL, PDF) and the array value is a configuration array consisting of these settings:
+     * EXCEL) and the array value is a configuration array consisting of these settings:
      * - `label`: _string_, the label for the export format menu item displayed
      * - `icon`: _string_, the glyphicon or font-awesome name suffix to be displayed before the export menu item label. If
      *   set to an empty string_, this will not be displayed.
@@ -844,7 +840,7 @@ class ExportMenu extends GridView
         if (empty($this->exportRequestParam)) {
             $this->exportRequestParam = 'exportFull_' . $this->options['id'];
         }
-        $path = '@vendor/kartik-v/yii2-export/src/views';
+        $path = '@vendor/web-develop-agat/yii2-export/src/views';
         if (!isset($this->exportColumnsView)) {
             $this->exportColumnsView = "{$path}/_columns";
         }
@@ -1116,18 +1112,7 @@ class ExportMenu extends GridView
     public function initPhpSpreadsheetWriter($type)
     {
         $t = $this->_exportType;
-        if ($t === self::FORMAT_PDF) {
-            IOFactory::registerWriter($type, ExportWriterPdf::class);
-        }
         $writer = $this->_objWriter = IOFactory::createWriter($this->_objSpreadsheet, $type);
-        if ($t === self::FORMAT_PDF && !empty($this->exportConfig[$t])) {
-            $cfg = $this->exportConfig[$t];
-            /**
-             * @var ExportWriterPdf $writer
-             */
-            $writer->filename = $this->filename . '.' . ArrayHelper::getValue($cfg, 'extension', 'pdf');
-            $writer->pdfConfig = ArrayHelper::getValue($cfg, 'pdfConfig', []);
-        }
         /**
          * @var WriterCsv $writer
          */
@@ -1564,7 +1549,6 @@ class ExportMenu extends GridView
         }
         $defaultStyleOptions = [
             self::FORMAT_HTML => $defaultStyle,
-            self::FORMAT_PDF => $defaultStyle,
             self::FORMAT_EXCEL => $defaultStyle,
             self::FORMAT_EXCEL_X => $defaultStyle,
         ];
@@ -1830,19 +1814,6 @@ class ExportMenu extends GridView
                 'extension' => 'txt',
                 'writer' => self::FORMAT_CSV,
                 'delimiter' => "\t",
-            ],
-            self::FORMAT_PDF => [
-                'label' => Yii::t('kvexport', 'PDF'),
-                'icon' => $isBs4 ? 'far fa-file-pdf' : ($isFa ? 'fa fa-file-pdf-o' : 'glyphicon glyphicon-floppy-disk'),
-                'iconOptions' => ['class' => 'text-danger'],
-                'linkOptions' => [],
-                'options' => ['title' => Yii::t('kvexport', 'Portable Document Format')],
-                'alertMsg' => Yii::t('kvexport', 'The PDF export file will be generated for download.'),
-                'mime' => 'application/pdf',
-                'extension' => 'pdf',
-                'writer' => 'KrajeePdf', // custom Krajee PDF writer using MPdf library
-                'useInlineCss' => true,
-                'pdfConfig' => [],
             ],
             self::FORMAT_EXCEL => [
                 'label' => Yii::t('kvexport', 'Excel 95 +'),
